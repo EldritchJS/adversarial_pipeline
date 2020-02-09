@@ -17,8 +17,16 @@ from io import BytesIO
 from kafka import KafkaConsumer
 
 def main(args):
+    model_filename = 'base_model.h5'
+
     logging.info('model={}'.format(args.model))
-    path = get_file('base_model.h5', extract=False, path=ART_DATA_PATH, url=args.model)
+    location = os.path.join(ART_DATA_PATH, model_filename)
+    try:
+        os.remove(location)
+    except OSError as error:
+        pass
+    print('model={}'.format(args.model))
+    path = get_file(model_filename, extract=False, path=ART_DATA_PATH, url=args.model)
     kmodel = load_model(path) 
     model = KerasClassifier(kmodel, use_logits=False, clip_values=[args.min,args.max]) 
     logging.info('finished acquiring model')
@@ -27,7 +35,7 @@ def main(args):
     if args.attack == 'FGM':
         attack = FastGradientMethod(model, eps=0.3, eps_step=0.01, targeted=False) 
     elif args.attack == 'PGD':
-        attack = ProjectedGradientDescent(model, eps=0.3, eps_step=0.01, max_iter=13, targeted=False)
+        attack = ProjectedGradientDescent(model, eps=8, eps_step=2, max_iter=13, targeted=False, num_random_init=True)
     else:
         logging.error('Invalid attack provided {} must be one of {FGM, PGD}'.format(args.attack))
         exit(0)
@@ -36,14 +44,15 @@ def main(args):
     logging.info('brokers={}'.format(args.brokers))
     logging.info('topic={}'.format(args.topic))
     logging.info('creating kafka consumer')
+
     consumer = KafkaConsumer(
-            args.topic,
-            bootstrap_servers=args.brokers,
-            value_deserializer=lambda val: loads(val.decode('utf-8')))
-    logging.info('finished creating kafka consumer')
+        args.topic,
+        bootstrap_servers=args.brokers,
+        value_deserializer=lambda val: loads(val.decode('utf-8')))
+
 
     while True:
-        for message in consumer:
+        for message in sources:
             image_url = message.value['url']
             label = message.value['label']
             logging.info('received URI {}'.format(image_url))
@@ -51,11 +60,11 @@ def main(args):
             logging.info('downloading image')
             response = requests.get(image_url)
             img = Image.open(BytesIO(response.content))
-            image = np.array(img.getdata()).reshape(img.size[0], img.size[1], 3)
+            image = np.array(img.getdata()).reshape(1,img.size[0], img.size[1], 3).astype('float32')
             logging.info('downloaded image')
-            images = np.ndarray(shape=(2,32,32,3), dtype=np.float32)
+            images = np.ndarray(shape=(2,32,32,3))
             images[0] = image
-            adversarial = attack.generate(image, label)
+            adversarial = attack.generate(image)
             images[1] = adversarial
             logging.info('adversarial image generated')
             preds = model.predict(images)
@@ -93,19 +102,20 @@ if __name__ == '__main__':
     parser.add_argument(
             '--model',
             help='URL of base model to retrain, env variable MODEL_URL',
-            default='https://www.dropbox.com/s/bv1xwjaf1ov4u7y/mnist_ratio%3D0.h5?dl=1')
+            default='https://www.dropbox.com/s/96yv0r2gqzockmw/cifar-10_ration%3D0.h5?dl=1')
+#            default='https://www.dropbox.com/s/znbcu9l3wikaf7m/cifar10.h5?dl=1')
     parser.add_argument(
             '--min',
             help='Normalization range min, env variable MODEL_MIN',
-            default='0')   
+            default=0)   
     parser.add_argument(
             '--max',
             help='Normalization range min, env variable MODEL_MAX',
-            default='255')        
+            default=255)        
     parser.add_argument(
             '--attack',
             help='Attack for adversarial example generation [FGM | PGD], env variable ATTACK_TYPE',
-            default='FGM')
+            default='PGD')
     args = parse_args(parser)
     main(args)
     logging.info('exiting')
