@@ -1,0 +1,8 @@
+kafka
+adversarial-robustness-toolbox
+numpy
+keras
+tensorflow
+pillow
+requests
+
