@@ -9,6 +9,6 @@ oc new-app centos/python-36-centos7~https://github.com/eldritchjs/adversarial_pi
   -e KAFKA_TOPIC=images \
   -e DBHOST=postgresql \
   -e DBNAME=adversarial \
-  -e DBUSERNAME=username \
-  -e DBPASSWORD=password
+  -e DBUSERNAME=<YOUR DB USERNAME> \
+  -e DBPASSWORD=<YOUR DB PASSWORD>
 ```

@@ -1,4 +1,5 @@
 import psycopg2
+from psycopg2.extras import RealDictCursor
 from os import environ
 from kafka import KafkaProducer
 import argparse
@@ -80,25 +81,26 @@ def main(args):
     logging.info('finished creating kafka producer')
 
     while True:
-        con = psycopg2.connect(
+        conn = psycopg2.connect(
                 host = args.dbhost,
                 port = 5432,
                 dbname = args.dbname,
                 user = args.dbusername,
                 password = args.dbpassword)
-        cur = con.cursor()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
         try:
-            query = 'select * from images where status=%s'
-            cur.execute(query, ('"Unprocessed"',))
-            res = [i[0] for i in cur.fetchall()]
+            query = 'select URL, FILENAME, LABEL from images where status=%s'
+            cur.execute(query,('Unprocessed',))
+            res = cur.fetchall()
         except Exception:
             res = []
         cur.close()
-        con.close()
+        conn.close()
         for result in res:
-            logging.info('Result: {}'.format
-#            producer.send('images', value=json.jsonify(result))
-            time.sleep(15.0)
+            logging.info('JSON result: {}'.format(json.dumps(result)))
+            producer.send('images', value=result)
+            time.sleep(3.0)
+        time.sleep(130.0)
 
 def get_arg(env, default):
     return os.getenv(env) if os.getenv(env, '') is not '' else default
