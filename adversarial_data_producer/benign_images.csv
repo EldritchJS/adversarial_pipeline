@@ -1,4 +1,3 @@
-# URL, FILENAME, LABEL, TYPE, STATUS
 https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_00_3.jpg,cifag10_00_3.jpg,3,Benign,Unprocessed
 https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_13_7.jpg,cifag10_13_7.jpg,7,Benign,Unprocessed
 https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_12_5.jpg,cifag10_12_5.jpg,5,Benign,Unprocessed
