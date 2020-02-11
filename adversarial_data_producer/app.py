@@ -16,6 +16,7 @@ class DatabaseLoader:
         self.user = environ.get("DBUSERNAME")
         self.password = environ.get("DBPASSWORD")
         self.dbname = environ.get("DBNAME")
+        self.cleartables = environ.get("CLEARTABLES")
 
     # takes the csv and inserts it into the db
     def setup_db(self):
@@ -41,6 +42,11 @@ class DatabaseLoader:
                 'LABEL VARCHAR, '
                 'TYPE VARCHAR, '
                 'STATUS VARCHAR);')
+            conn.commit()
+        elif self.cleartables == '1':
+            cur.execute('delete from images;')
+            conn.commit()
+
         tb_exists = "select exists(" \
                     "select relname from pg_class where relname='"\
                     + "models" + "')"
@@ -52,6 +58,9 @@ class DatabaseLoader:
                 'URL VARCHAR, '
                 'FILENAME VARCHAR, '
                 'MODELNAME VARCHAR);')
+            conn.commit()
+        elif self.cleartables == '1':
+            cur.execute('delete from models;')
             conn.commit()
         # copy csv
         f = open(r'benign_images.csv', 'r')
@@ -95,10 +104,11 @@ def parse_args(parser):
     args = parser.parse_args()
     args.brokers = get_arg('KAFKA_BROKERS', args.brokers)
     args.topic = get_arg('KAFKA_TOPIC', args.topic)
-    args.topic = get_arg('DBHOST', args.dbhost)
-    args.topic = get_arg('DBNAME', args.dbname)
-    args.topic = get_arg('DBUSERNAME', args.dbusername)
-    args.topic = get_arg('DBPASSWORD', args.dbpassword)
+    args.dbhost = get_arg('DBHOST', args.dbhost)
+    args.dbtopic = get_arg('DBNAME', args.dbname)
+    args.dbusername = get_arg('DBUSERNAME', args.dbusername)
+    args.dbtopic = get_arg('DBPASSWORD', args.dbpassword)
+    args.cleartables = get_arg('CLEARTABLES', args.cleartables)
     return args
 
 
@@ -132,6 +142,10 @@ if __name__ == '__main__':
             '--dbpassword',
             help='password for the database, env variable DBPASSWORD',
             default='redhat')
+    parser.add_argument(
+            '--cleartables',
+            help='clear out tables before starting, env variable CLEARTABLES',
+            default='0')
     args = parse_args(parser)
     dbl = DatabaseLoader()
     dbl.setup_db()
