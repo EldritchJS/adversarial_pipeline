@@ -98,7 +98,7 @@ def main(args):
         conn.close()
         for result in res:
             logging.info('JSON result: {}'.format(dumps(result)))
-            producer.send('images', value=result)
+            producer.send(args.topic, value=result)
             time.sleep(3.0)
         time.sleep(130.0)
 
@@ -128,7 +128,7 @@ if __name__ == '__main__':
     parser.add_argument(
             '--topic',
             help='Topic to write to, env variable KAFKA_TOPIC',
-            default='images')
+            default='benign-images')
     parser.add_argument(
             '--dbhost',
             help='hostname for postgresql database, env variable DBHOST',

@@ -15,9 +15,13 @@ from PIL import Image
 import requests
 from io import BytesIO
 from kafka import KafkaConsumer
+from kafka import KafkaProducer
 import dropbox
+import psycopg2
 
 def main(args):
+    batch_status_message = {'status':'Ready','model_url':args.model}
+    batch_count = 0
     model_filename = 'base_model.h5'
 
     logging.info('model={}'.format(args.model))
@@ -26,7 +30,7 @@ def main(args):
         os.remove(location)
     except OSError as error:
         pass
-    path = get_file(model_filename, extract=False, path=ART_DATA_PATH, url=args.model)
+    path = get_file(model_filename, extract=False, path='/home/jschlessman', url=args.model)
     kmodel = load_model(path) 
     model = KerasClassifier(kmodel, use_logits=False, clip_values=[args.min,args.max]) 
     logging.info('finished acquiring model')
@@ -42,24 +46,42 @@ def main(args):
 
     logging.info('finished creating attack')
     logging.info('brokers={}'.format(args.brokers))
-    logging.info('topic={}'.format(args.topic))
+    logging.info('readtopic={}'.format(args.readtopic))
     logging.info('creating kafka consumer')
 
     consumer = KafkaConsumer(
-        args.topic,
+        args.readtopic,
         bootstrap_servers=args.brokers,
         value_deserializer=lambda val: loads(val.decode('utf-8')))
     logging.info("finished creating kafka consumer")
 
     if args.dbxtoken != None:
         dbx = dropbox.Dropbox(dbxtoken)
+        logging.info('creating kafka producer')    
+        producer = KafkaProducer(bootstrap_servers=['kafka:9092'],
+                                 value_serializer=lambda x: 
+                                 dumps(x).encode('utf-8'))
+        logging.info('finished creating kafka producer')    
     else:
         dbx = None
 
     while True:
         for message in consumer:
             if mesage.value['url']:
-                response = requests.get(message.value['url'])
+                conn = psycopg2.connect(
+                    host = args.dbhost,
+                    port = 5432,
+                    dbname = args.dbname,
+                    user = args.dbusername,
+                    password = args.dbpassword)
+                cur = conn.cursor()
+                query = 'UPDATE images SET STATUS=%s where URL=%s'
+                cur.execute(query, ('Processed', image_url))
+                cur.close()
+                conn.close()
+                batch_count = batch_count+1
+                image_url = message.value['url']
+                response = requests.get(image_url)
                 img = Image.open(BytesIO(response.content))
                 label = message.value['label']
                 infilename = message.value['filename'].rpartition('.')[0]
@@ -82,9 +104,13 @@ def main(args):
                     fs=BytesIO()
                     imout=Image.fromarray(np.uint8(adversarial[0]))
                     im.save(fs, format='jpeg')
-                    
-                    outfilename = '/{}_{}_adv.jpg'.format(infilename,adv_inf) 
+                    outfilename = '/images/{}_{}_adv.jpg'.format(infilename,adv_inf) 
                     dbx.files_upload(fs.getvalue(), outfilename)
+                if (batch_count == args.batchsize) and (dbx != None):
+                    producer.send(args.writetopic,batch_status_message)
+                    batch_count=0
+
+
 
 def get_arg(env, default):
     return os.getenv(env) if os.getenv(env, '') is not '' else default
@@ -93,13 +119,14 @@ def get_arg(env, default):
 def parse_args(parser):
     args = parser.parse_args()
     args.brokers = get_arg('KAFKA_BROKERS', args.brokers)
-    args.topic = get_arg('KAFKA_READ_TOPIC', args.readtopic)
-    args.topic = get_arg('KAFKA_WRITE_TOPIC', args.writetopic)
+    args.readtopic = get_arg('KAFKA_READ_TOPIC', args.readtopic)
+    args.writetopic = get_arg('KAFKA_WRITE_TOPIC', args.writetopic)
     args.model = get_arg('MODEL_URL', args.model)
     args.min = get_arg('MODEL_MIN', args.min)
     args.max = get_arg('MODEL_MAX', args.max)
     args.attack = get_arg('ATTACK_TYPE', args.attack)
     args.dbxtoken = get_arg('DROPBOX_TOKEN', args.dbxtoken)
+    args.batchsize = get_arg('BATCH_SIZE', args.batchsize)
     return args
 
 
@@ -112,13 +139,17 @@ if __name__ == '__main__':
             help='The bootstrap servers, env variable KAFKA_BROKERS',
             default='kafka:9092')
     parser.add_argument(
-            '--topic',
-            help='Topic to read from, env variable KAFKA_TOPIC',
-            default='images')
+            '--readtopic',
+            help='Topic to read from, env variable KAFKA_WRITE_TOPIC',
+            default='benign-images')
+    parser.add_argument(
+            '--writetopic',
+            help='Topic to read from, env variable KAFKA_READ_TOPIC',
+            default='benign-batch-status')    
     parser.add_argument(
             '--model',
             help='URL of base model to retrain, env variable MODEL_URL',
-            default='https://www.dropbox.com/s/96yv0r2gqzockmw/cifar-10_ration%3D0.h5?dl=1')
+            default='https://www.dropbox.com/s/96yv0r2gqzockmw/cifar-10_ratio%3D0.5.h5?dl=1')
     parser.add_argument(
             '--min',
             help='Normalization range min, env variable MODEL_MIN',
@@ -135,6 +166,10 @@ if __name__ == '__main__':
             '--dbxtoken',
             help='API token for Dropbox, env variable DROPBOX_TOKEN',
             default=None)
+    parser.add_argument(
+            '--batchsize',
+            help='Adversarial batch size, env variable BATCH_SIZE',
+            default=3)
     args = parse_args(parser)
     main(args)
     logging.info('exiting')
