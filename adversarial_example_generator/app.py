@@ -67,7 +67,7 @@ def main(args):
 
     while True:
         for message in consumer:
-            if mesage.value['url']:
+            if message.value['url']:
                 conn = psycopg2.connect(
                     host = args.dbhost,
                     port = 5432,
