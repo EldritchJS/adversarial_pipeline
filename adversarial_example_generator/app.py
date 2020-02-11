@@ -56,7 +56,7 @@ def main(args):
     logging.info("finished creating kafka consumer")
 
     if args.dbxtoken != None:
-        dbx = dropbox.Dropbox(dbxtoken)
+        dbx = dropbox.Dropbox(args.dbxtoken)
         logging.info('creating kafka producer')    
         producer = KafkaProducer(bootstrap_servers=['kafka:9092'],
                                  value_serializer=lambda x: 
