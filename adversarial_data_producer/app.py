@@ -1,5 +1,12 @@
 import psycopg2
 from os import environ
+from kafka import KafkaProducer
+import argparse
+import logging
+import os
+import time
+from json import dumps 
+
 
 
 class DatabaseLoader:
@@ -49,14 +56,6 @@ class DatabaseLoader:
         conn.commit()
         f.close()
 
-from kafka import KafkaProducer
-import argparse
-import logging
-import os
-import time
-from json import dumps 
-
-
 def main(args):
     logging.info('brokers={}'.format(args.brokers))
     logging.info('topic={}'.format(args.topic))
@@ -67,8 +66,21 @@ def main(args):
     logging.info('finished creating kafka producer')
 
     while True:
-        for source in sources:
-            producer.send('images', value=source)
+        con = psy.connect(
+                host = args.dbhost,
+                user = args.dbusername,
+                password = args.dbpassword,
+                dbname = args.dbname)
+        cur = con.cursor()
+        try:
+            cur.execute('select * from images where STATUS=Unprocessed')
+            res = [i[0] for i in cur.fetchall()]
+        except Exception:
+            res = []
+        cur.close()
+        con.close()
+        for result in res:
+            producer.send('images', value=json.jsonify(result))
             time.sleep(15.0)
 
 def get_arg(env, default):
@@ -78,6 +90,10 @@ def parse_args(parser):
     args = parser.parse_args()
     args.brokers = get_arg('KAFKA_BROKERS', args.brokers)
     args.topic = get_arg('KAFKA_TOPIC', args.topic)
+    args.topic = get_arg('DBHOST', args.dbhost)
+    args.topic = get_arg('DBNAME', args.dbname)
+    args.topic = get_arg('DBUSERNAME', args.dbusername)
+    args.topic = get_arg('DBPASSWORD', args.dbpassword)
     return args
 
 
@@ -112,11 +128,9 @@ if __name__ == '__main__':
             help='password for the database, env variable DBPASSWORD',
             default='redhat')
     args = parse_args(parser)
+    dbl = DatabaseLoader()
+    dbl.setup_db()
     main(args)
     logging.info('exiting')
 
 
-        
-if __name__ == '__main__':
-    dbl = DatabaseLoader()
-    dbl.setup_db()
