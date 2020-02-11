@@ -80,21 +80,24 @@ def main(args):
     logging.info('finished creating kafka producer')
 
     while True:
-        con = psy.connect(
+        con = psycopg2.connect(
                 host = args.dbhost,
+                port = 5432,
+                dbname = args.dbname)
                 user = args.dbusername,
                 password = args.dbpassword,
-                dbname = args.dbname)
         cur = con.cursor()
         try:
-            cur.execute('select * from images where STATUS=Unprocessed')
+            query = 'select * from images where status=%s'
+            cur.execute(query, ('"Unprocessed"',))
             res = [i[0] for i in cur.fetchall()]
         except Exception:
             res = []
         cur.close()
         con.close()
         for result in res:
-            producer.send('images', value=json.jsonify(result))
+            logging.info('Result: {}'.format
+#            producer.send('images', value=json.jsonify(result))
             time.sleep(15.0)
 
 def get_arg(env, default):
