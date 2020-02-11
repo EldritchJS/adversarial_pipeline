@@ -1,0 +1,12 @@
+# URL, FILENAME, LABEL, TYPE, STATUS
+https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_00_3.jpg,cifag10_00_3.jpg,3,Benign,Unprocessed
+https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_13_7.jpg,cifag10_13_7.jpg,7,Benign,Unprocessed
+https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_12_5.jpg,cifag10_12_5.jpg,5,Benign,Unprocessed
+https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_03_0.jpg,cifag10_03_0.jpg,0,Benign,Unprocessed
+https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_05_6.jpg,cifag10_05_6.jpg,6,Benign,Unprocessed
+https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_02_8.jpg,cifag10_02_8.jpg,8,Benign,Unprocessed
+https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_16_5.jpg,cifag10_16_5.jpg,5,Benign,Unprocessed
+https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_18_8.jpg,cifag10_18_8.jpg,8,Benign,Unprocessed
+https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_04_6.jpg,cifag10_04_6.jpg,6,Benign,Unprocessed
+
+
