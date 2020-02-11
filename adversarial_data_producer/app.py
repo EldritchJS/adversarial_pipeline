@@ -34,13 +34,21 @@ class DatabaseLoader:
                 'LABEL VARCHAR, '
                 'TYPE VARCHAR, '
                 'STATUS VARCHAR);')
+            cur.execute(
+                'create table models('
+                'ID SERIAL PRIMARY KEY, '
+                'URL VARCHAR, '
+                'FILENAME VARCHAR, '
+                'MODELNAME VARCHAR);')
             conn.commit()
         # copy csv
         f = open(r'benign_images.csv', 'r')
         cur.copy_from(f, "images", sep=',')
+        g = open(r'models.csv', 'r')
+        cur.copy_from(g, "models", sep=',')
         conn.commit()
         f.close()
-i
+
 from kafka import KafkaProducer
 import argparse
 import logging
@@ -48,17 +56,6 @@ import os
 import time
 from json import dumps 
 
-sources = [
-        {'url':'https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_00_3.jpg','label':3},
-        {'url':'https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_13_7.jpg','label':7},
-        {'url':'https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_12_5.jpg','label':5},
-        {'url':'https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_03_0.jpg','label':0},
-        {'url':'https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_05_6.jpg','label':6},
-        {'url':'https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_02_8.jpg','label':8},
-        {'url':'https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_16_5.jpg','label':5},
-        {'url':'https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_18_8.jpg','label':8},
-        {'url':'https://raw.githubusercontent.com/EldritchJS/cifar10_challenge/master/images/cifar10_04_6.jpg','label':6}
-        ]
 
 def main(args):
     logging.info('brokers={}'.format(args.brokers))
