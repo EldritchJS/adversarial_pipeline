@@ -1,8 +1,13 @@
-# adversarial_pipeline
+# Adversarial Machine Learning Pipeline on OpenShift
 
-Prerequisites:
+### Overview
+This project contains a demo of conducting adversarial machine learning example generation and model retraining using microservices on OpenShift. 
 
-Persistent storage where adversarial images will be placed. For purposes of this demo a Dropbox API token associated to a single application folder is used. The `adversarial\_example\_generator` service can be modified to handle the storage of your choosing. 
+### Prerequisites
+
+Persistent storage where adversarial images will be placed. For purposes of this demo a Dropbox API token associated to a single application folder is used. The `adversarial\_example\_generator` service can be modified to handle the storage of your choosing. You'll also need access to a running OpenShift cluster. 
+
+### Running the demo
 
 1. Start Postgresql service
 ```
@@ -30,8 +35,8 @@ oc new-app centos/python-36-centos7~https://github.com/eldritchjs/adversarial_pi
   --context-dir=adversarial_data_producer \
   -e DBHOST=postgresql \
   -e DBNAME=adversarial \
-  -e DBUSERNAME=username \
-  -e DBPASSWORD=password
+  -e DBUSERNAME=<YOUR DB USERNAME> \
+  -e DBPASSWORD=<YOUR DB PASSWORD>
 ```
 
 6. Check logs to see progress. Once a batch threshold is reached for the number of images received, any adversarial images generated will be placed in your persistent storage. At that point retraining will be initiated.
