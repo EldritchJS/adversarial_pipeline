@@ -25,6 +25,19 @@ oc new-app strimzi
 ```
 
 3. Start adversarial example generator service
+```
+oc new-app eldritchjs/py36centos7~https://github.com/eldritchjs/adversarial_pipeline \
+--context-dir=adversarial_example_generator \
+-e KAFKA_BROKERS=kafka:9092 \
+-e KAFKA_READ_TOPIC=benign-images \
+-e KAFKA_WRITE_TOPIC=benign-batch-status \
+-e BATCH_SIZE=13
+-e MODEL_URL= \
+-e MODEL_MIN=0 \
+-e MODEL_MAX=255 \
+-e ATTACK_TYPE=PGD \
+-e DROPBOX_TOKEN=
+```
 
 4. Start adversarial training service
 
@@ -33,10 +46,13 @@ oc new-app strimzi
 ```
 oc new-app centos/python-36-centos7~https://github.com/eldritchjs/adversarial_pipeline \
   --context-dir=adversarial_data_producer \
+  -e KAFKA_BROKERS=kafka:9092 \
+  -e KAFKA_TOPIC=benign-images \
   -e DBHOST=postgresql \
   -e DBNAME=adversarial \
   -e DBUSERNAME=<YOUR DB USERNAME> \
-  -e DBPASSWORD=<YOUR DB PASSWORD>
+  -e DBPASSWORD=<YOUR DB PASSWORD> \
+  --name data-producer
 ```
 
 6. Check logs to see progress. Once a batch threshold is reached for the number of images received, any adversarial images generated will be placed in your persistent storage. At that point retraining will be initiated.

@@ -6,7 +6,8 @@ The generator expects messages on the `images` topic to provide a JSON object wi
 
 The adversarial example image generator pod is created as follows:
 
-```oc new-app centos/python-36-centos7~https://github.com/eldritchjs/adversarial_pipeline \
+```
+oc new-app centos/python-36-centos7~https://github.com/eldritchjs/adversarial_pipeline \
 --context-dir=adversarial_example_generator \
 -e KAFKA_BROKERS=kafka:9092 \
 -e KAFKA_READ_TOPIC=benign-images \
@@ -16,4 +17,6 @@ The adversarial example image generator pod is created as follows:
 -e MODEL_MIN='0' \
 -e MODEL_MAX='255' \
 -e ATTACK_TYPE='PGD' \
--e DROPBOX_TOKEN=```
+-e DROPBOX_TOKEN=
+--name example-generator
+```
