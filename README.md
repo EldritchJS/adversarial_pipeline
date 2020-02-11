@@ -14,8 +14,10 @@ oc new-app --name postgresql \
 ```
 
 2. Start Kafka service
-`oc create -f https://raw.githubusercontent.com/eldritchjs/adversarial_pipeline/openshift-templates/strimzi-0.1.0.yaml`
-`oc new-app strimzi`
+```
+oc create -f https://raw.githubusercontent.com/eldritchjs/adversarial_pipeline/openshift-templates/strimzi-0.1.0.yaml
+oc new-app strimzi
+```
 
 3. Start adversarial example generator service
 
