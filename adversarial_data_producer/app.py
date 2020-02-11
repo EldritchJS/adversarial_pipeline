@@ -30,7 +30,7 @@ class DatabaseLoader:
         # does table exist
         tb_exists = "select exists(" \
                     "select relname from pg_class where relname='"\
-                    + "transactions" + "')"
+                    + "images" + "')"
         cur.execute(tb_exists)
         if cur.fetchone()[0] is False:
             # make table
@@ -41,6 +41,11 @@ class DatabaseLoader:
                 'LABEL VARCHAR, '
                 'TYPE VARCHAR, '
                 'STATUS VARCHAR);')
+        tb_exists = "select exists(" \
+                    "select relname from pg_class where relname='"\
+                    + "models" + "')"
+        cur.execute(tb_exists)
+        if cur.fetchone()[0] is False:
             cur.execute(
                 'create table models('
                 'ID SERIAL PRIMARY KEY, '
