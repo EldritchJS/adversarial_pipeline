@@ -83,9 +83,9 @@ def main(args):
         con = psycopg2.connect(
                 host = args.dbhost,
                 port = 5432,
-                dbname = args.dbname)
+                dbname = args.dbname,
                 user = args.dbusername,
-                password = args.dbpassword,
+                password = args.dbpassword)
         cur = con.cursor()
         try:
             query = 'select * from images where status=%s'
