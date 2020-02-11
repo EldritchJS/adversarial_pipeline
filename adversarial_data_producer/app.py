@@ -110,9 +110,9 @@ def parse_args(parser):
     args.brokers = get_arg('KAFKA_BROKERS', args.brokers)
     args.topic = get_arg('KAFKA_TOPIC', args.topic)
     args.dbhost = get_arg('DBHOST', args.dbhost)
-    args.dbtopic = get_arg('DBNAME', args.dbname)
+    args.dbname = get_arg('DBNAME', args.dbname)
     args.dbusername = get_arg('DBUSERNAME', args.dbusername)
-    args.dbtopic = get_arg('DBPASSWORD', args.dbpassword)
+    args.dbpassword = get_arg('DBPASSWORD', args.dbpassword)
     args.cleartables = get_arg('CLEARTABLES', args.cleartables)
     return args
 

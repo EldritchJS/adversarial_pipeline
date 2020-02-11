@@ -127,6 +127,10 @@ def parse_args(parser):
     args.attack = get_arg('ATTACK_TYPE', args.attack)
     args.dbxtoken = get_arg('DROPBOX_TOKEN', args.dbxtoken)
     args.batchsize = get_arg('BATCH_SIZE', args.batchsize)
+    args.dbhost = get_arg('DBHOST', args.dbhost)
+    args.dbname = get_arg('DBNAME', args.dbname)
+    args.dbusername = get_arg('DBUSERNAME', args.dbusername)
+    args.dbtopic = get_arg('DBPASSWORD', args.dbpassword)    
     return args
 
 
@@ -170,6 +174,23 @@ if __name__ == '__main__':
             '--batchsize',
             help='Adversarial batch size, env variable BATCH_SIZE',
             default=3)
+            '--dbhost',
+            help='hostname for postgresql database, env variable DBHOST',
+            default='postgresql')
+    parser.add_argument(
+            '--dbname',
+            help='database name to setup and watch, env variable DBNAME',
+            default='adversarial')
+
+    parser.add_argument(
+            '--dbusername',
+            help='username for the database, env variable DBUSERNAME',
+            default='redhat')
+    
+    parser.add_argument(
+            '--dbpassword',
+            help='password for the database, env variable DBPASSWORD',
+            default='redhat')
     args = parse_args(parser)
     main(args)
     logging.info('exiting')
