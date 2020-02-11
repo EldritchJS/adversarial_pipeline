@@ -174,6 +174,7 @@ if __name__ == '__main__':
             '--batchsize',
             help='Adversarial batch size, env variable BATCH_SIZE',
             default=3)
+    parser.add_argument(
             '--dbhost',
             help='hostname for postgresql database, env variable DBHOST',
             default='postgresql')
