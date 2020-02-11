@@ -97,7 +97,7 @@ def main(args):
         cur.close()
         conn.close()
         for result in res:
-            logging.info('JSON result: {}'.format(json.dumps(result)))
+            logging.info('JSON result: {}'.format(dumps(result)))
             producer.send('images', value=result)
             time.sleep(3.0)
         time.sleep(130.0)
