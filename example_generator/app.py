@@ -33,7 +33,7 @@ def main(args):
         pass
     path = get_file(model_filename, extract=False, path=ART_DATA_PATH, url=args.model)
     kmodel = load_model(path) 
-    model = KerasClassifier(kmodel, use_logits=False, clip_values=[args.min,args.max]) 
+    model = KerasClassifier(kmodel, use_logits=False, clip_values=[0.0,255.0]) 
     logging.info('finished acquiring model')
     logging.info('creating attack {}'.format(args.attack))
 
