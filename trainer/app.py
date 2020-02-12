@@ -37,7 +37,6 @@ def main(args):
     else:
         dbx = None
         logging.info('No Dropbox token provided')
-        exit(0)
 
         while True:
             for message in consumer:
