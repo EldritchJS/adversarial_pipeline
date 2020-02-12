@@ -30,7 +30,7 @@ def main(args):
         os.remove(location)
     except OSError as error:
         pass
-    path = get_file(model_filename, extract=False, path='/home/jschlessman', url=args.model)
+    path = get_file(model_filename, extract=False, path=ART_DATA_PATH, url=args.model)
     kmodel = load_model(path) 
     model = KerasClassifier(kmodel, use_logits=False, clip_values=[args.min,args.max]) 
     logging.info('finished acquiring model')
@@ -142,14 +142,14 @@ if __name__ == '__main__':
     parser.add_argument(
             '--brokers',
             help='The bootstrap servers, env variable KAFKA_BROKERS',
-            default='localhost:9092')
+            default='kafka:9092')
     parser.add_argument(
             '--readtopic',
-            help='Topic to read from, env variable KAFKA_WRITE_TOPIC',
+            help='Topic to read from, env variable KAFKA_READ_TOPIC',
             default='benign-images')
     parser.add_argument(
             '--writetopic',
-            help='Topic to read from, env variable KAFKA_READ_TOPIC',
+            help='Topic to write to, env variable KAFKA_WRITE_TOPIC',
             default='benign-batch-status')    
     parser.add_argument(
             '--model',
@@ -178,7 +178,7 @@ if __name__ == '__main__':
     parser.add_argument(
             '--dbhost',
             help='hostname for postgresql database, env variable DBHOST',
-            default='localhost')
+            default='postgresql')
     parser.add_argument(
             '--dbname',
             help='database name to setup and watch, env variable DBNAME',
