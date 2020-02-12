@@ -10,6 +10,7 @@ from art.utils import get_file
 from art.classifiers import KerasClassifier
 from keras.models import load_model
 from json import loads
+from json import dumps
 import numpy as np
 from PIL import Image
 import requests
@@ -55,7 +56,7 @@ def main(args):
         value_deserializer=lambda val: loads(val.decode('utf-8')))
     logging.info("finished creating kafka consumer")
 
-    if args.dbxtoken != None:
+    if args.dbxtoken != '':
         dbx = dropbox.Dropbox(args.dbxtoken)
         logging.info('creating kafka producer')    
         producer = KafkaProducer(bootstrap_servers=args.brokers,
@@ -140,8 +141,7 @@ def parse_args(parser):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    logging.info('starting kafka-python consumer')
-    parser = argparse.ArgumentParser(description='consume some stuff on kafka')
+    parser = argparse.ArgumentParser(description='Consume messages on Kafka, download images, generate examples')
     parser.add_argument(
             '--brokers',
             help='The bootstrap servers, env variable KAFKA_BROKERS',
@@ -177,7 +177,7 @@ if __name__ == '__main__':
     parser.add_argument(
             '--batchsize',
             help='Adversarial batch size, env variable BATCH_SIZE',
-            default=6)
+            default=5)
     parser.add_argument(
             '--dbhost',
             help='hostname for postgresql database, env variable DBHOST',
