@@ -38,66 +38,66 @@ def main(args):
         dbx = None
         logging.info('No Dropbox token provided')
 
-        while True:
-            for message in consumer:
-                if (message.value['status']=='Ready') and (message.value['modelurl']):
-                    (X_train, y_train), (X_test, y_test) = cifar10.load_data()
-                    X_train = X_train.reshape(X_train.shape[0], 32, 32, 3).astype('float32')
-                    X_test = X_test.reshape(X_test.shape[0], 32, 32, 3).astype('float32')
-                    y_train = to_categorical(y_train, 10)
-                    y_test = to_categorical(y_test, 10)
-                    modelurl = message.value['modelurl']
-                    logging.info('model={}'.format(modelurl))
-                    model_filename = 'base_model.h5'
-                    location = os.path.join(ART_DATA_PATH, model_filename)
-                    try:
-                        os.remove(location)
-                    except OSError as error:
-                        pass
-                    path = get_file(model_filename, extract=False, path=ART_DATA_PATH, url=modelurl)
-                    kmodel = load_model(path) 
-                    model = KerasClassifier(kmodel, use_logits=False, clip_values=[args.min,args.max]) 
-                    logging.info('finished acquiring model')            
-                    imagefiles=dbx.files_list_folder('/images')
-                    adversaries=False 
-                    for dbximage in imagefiles.entries:
-                        filepath = '/images/' + dbximage.name
-                        filename = dbximage.name
-                        label = filename.split('_')[-3]
-                        response = dbx.files_download(filepath)[1]
-                        img = Image.open(BytesIO(response.content))
-                        logging.info('downloaded file {}'.format(dbximage.name))
-                        image = np.array(img.getdata()).reshape(1,img.size[0], img.size[1], 3).astype('float32')
-                        if adversaries is False:
-                            X_adv = image
-                            y_adv = [label]
-                            adversaries = True
-                        else:
-                            X_adv = np.append(X_adv, image, axis=0)
-                            y_adv = np.append(y_adv, [label], axis=0)
-                    y_adv = to_categorical(y_adv, 10)
-                    X_train = np.append(X_train, X_adv, axis=0)
-                    y_train = np.append(y_train, [y_adv], axis=0) 
-                    model.fit(X_train, y_train, nb_epochs=83, batch_size=50) # Per ART 360 example
-                    model.basename=model_filename.split('.')[0]
-                    adv_model_name = model_basename + '_adv'
-                    adv_model_filename = adv_model_name + '.h5'
-                    model.save(model_basename + '_adv.h5')
-                    # TODO Copy to model store
+    while True:
+        for message in consumer:
+            if (message.value['status']=='Ready') and (message.value['modelurl']):
+                (X_train, y_train), (X_test, y_test) = cifar10.load_data()
+                X_train = X_train.reshape(X_train.shape[0], 32, 32, 3).astype('float32')
+                X_test = X_test.reshape(X_test.shape[0], 32, 32, 3).astype('float32')
+                y_train = to_categorical(y_train, 10)
+                y_test = to_categorical(y_test, 10)
+                modelurl = message.value['modelurl']
+                logging.info('model={}'.format(modelurl))
+                model_filename = 'base_model.h5'
+                location = os.path.join(ART_DATA_PATH, model_filename)
+                try:
+                    os.remove(location)
+                except OSError as error:
+                    pass
+                path = get_file(model_filename, extract=False, path=ART_DATA_PATH, url=modelurl)
+                kmodel = load_model(path) 
+                model = KerasClassifier(kmodel, use_logits=False, clip_values=[args.min,args.max]) 
+                logging.info('finished acquiring model')            
+                imagefiles=dbx.files_list_folder('/images')
+                adversaries=False 
+                for dbximage in imagefiles.entries:
+                    filepath = '/images/' + dbximage.name
+                    filename = dbximage.name
+                    label = filename.split('_')[-3]
+                    response = dbx.files_download(filepath)[1]
+                    img = Image.open(BytesIO(response.content))
+                    logging.info('downloaded file {}'.format(dbximage.name))
+                    image = np.array(img.getdata()).reshape(1,img.size[0], img.size[1], 3).astype('float32')
+                    if adversaries is False:
+                        X_adv = image
+                        y_adv = [label]
+                        adversaries = True
+                    else:
+                        X_adv = np.append(X_adv, image, axis=0)
+                        y_adv = np.append(y_adv, [label], axis=0)
+                y_adv = to_categorical(y_adv, 10)
+                X_train = np.append(X_train, X_adv, axis=0)
+                y_train = np.append(y_train, [y_adv], axis=0) 
+                model.fit(X_train, y_train, nb_epochs=83, batch_size=50) # Per ART 360 example
+                model.basename=model_filename.split('.')[0]
+                adv_model_name = model_basename + '_adv'
+                adv_model_filename = adv_model_name + '.h5'
+                model.save(model_basename + '_adv.h5')
+                # TODO Copy to model store
 
-                    conn = psycopg2.connect(
-                        host = args.dbhost,
-                        port = 5432,
-                        dbname = args.dbname,
-                        user = args.dbusername,
-                        password = args.dbpassword)
-                    cur = conn.cursor()
-                    query = 'INSERT into models(URL, FILENAME, MODELNAME) VALUES(%s, %s, %s)'
-                    cur.execute(query, ('', adv_model_filename, adv_model_name)) 
-                    conn.commit()
-                    logging.info('updated database with new model')
-                    cur.close()
-                    conn.close()
+                conn = psycopg2.connect(
+                    host = args.dbhost,
+                    port = 5432,
+                    dbname = args.dbname,
+                    user = args.dbusername,
+                    password = args.dbpassword)
+                cur = conn.cursor()
+                query = 'INSERT into models(URL, FILENAME, MODELNAME) VALUES(%s, %s, %s)'
+                cur.execute(query, ('', adv_model_filename, adv_model_name)) 
+                conn.commit()
+                logging.info('updated database with new model')
+                cur.close()
+                conn.close()
 
 def get_arg(env, default):
     return os.getenv(env) if os.getenv(env, '') is not '' else default
