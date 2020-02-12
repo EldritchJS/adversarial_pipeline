@@ -92,7 +92,7 @@ def main(args):
                 logging.info('downloading image')
                 image = np.array(img.getdata()).reshape(1,img.size[0], img.size[1], 3).astype('float32')
                 logging.info('downloaded image')
-                images = np.ndarray(shape=(2,32,32,3))
+                images = np.ndarray(shape=(2,32,32,3)).astype('float32')
                 images[0] = image
                 adversarial = attack.generate(image)
                 images[1] = adversarial
