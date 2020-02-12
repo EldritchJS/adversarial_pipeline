@@ -39,8 +39,10 @@ def main(args):
 
     if args.attack == 'FGM':
         attack = FastGradientMethod(model, eps=0.3, eps_step=0.01, targeted=False) 
+        logging.info('created FGM attack')
     elif args.attack == 'PGD':
         attack = ProjectedGradientDescent(model, eps=8, eps_step=2, max_iter=13, targeted=False, num_random_init=True)
+        logging.info('created PGD attack')
     else:
         logging.error('Invalid attack provided {} must be one of {FGM, PGD}'.format(args.attack))
         exit(0)
