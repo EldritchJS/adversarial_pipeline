@@ -121,7 +121,6 @@ def parse_args(parser):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    logging.info('starting kafka-python consumer')
     parser = argparse.ArgumentParser(description='consume some stuff on kafka')
     parser.add_argument(
             '--brokers',

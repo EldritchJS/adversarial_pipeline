@@ -24,7 +24,7 @@ oc create -f https://raw.githubusercontent.com/EldritchJS/adversarial_pipeline/m
 oc new-app strimzi
 ```
 
-3. Start adversarial example generator service
+3. Start example generator service
 
 ```
 oc new-app eldritchjs/py36centostf:tf:tf~https://github.com/eldritchjs/adversarial_pipeline \
@@ -45,7 +45,7 @@ oc new-app eldritchjs/py36centostf:tf:tf~https://github.com/eldritchjs/adversari
 --name example-generator
 ```
 
-4. Start adversarial training service
+4. Start training service
 
 ```
 oc new-app eldritchjs/centospy36tf:tf~https://github.com/eldritchjs/adversarial_pipeline \
@@ -56,7 +56,6 @@ oc new-app eldritchjs/centospy36tf:tf~https://github.com/eldritchjs/adversarial_
 -e MODEL_URL=https://www.dropbox.com/s/96yv0r2gqzockmw/cifar-10_ratio%3D0.5.h5?dl=1 \
 -e MODEL_MIN=0 \
 -e MODEL_MAX=255 \
--e ATTACK_TYPE=PGD \
 -e DROPBOX_TOKEN= \
 -e DBHOST=postgresql \
 -e DBNAME=adversarial \
@@ -65,7 +64,7 @@ oc new-app eldritchjs/centospy36tf:tf~https://github.com/eldritchjs/adversarial_
 --name trainer
 ```
 
-5. Start adversarial data producer service
+5. Start data producer service
 
 ```
 oc new-app centos/python-36-centos7~https://github.com/eldritchjs/adversarial_pipeline \
@@ -74,8 +73,9 @@ oc new-app centos/python-36-centos7~https://github.com/eldritchjs/adversarial_pi
   -e KAFKA_TOPIC=benign-images \
   -e DBHOST=postgresql \
   -e DBNAME=adversarial \
-  -e DBUSERNAME=<YOUR DB USERNAME> \
-  -e DBPASSWORD=<YOUR DB PASSWORD> \
+  -e DBUSERNAME=redhat \
+  -e DBPASSWORD=redhat \
+  -e CLEARTABLES=1 \
   --name data-producer
 ```
 

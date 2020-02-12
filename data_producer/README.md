@@ -9,7 +9,8 @@ oc new-app centos/python-36-centos7~https://github.com/eldritchjs/adversarial_pi
   -e KAFKA_TOPIC=benign-images \
   -e DBHOST=postgresql \
   -e DBNAME=adversarial \
-  -e DBUSERNAME=<YOUR DB USERNAME> \
-  -e DBPASSWORD=<YOUR DB PASSWORD> \
+  -e DBUSERNAME=redhat \
+  -e DBPASSWORD=redhat \
+  -e CLEARTABLES=1 \
   --name data-producer
 ```

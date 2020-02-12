@@ -44,7 +44,7 @@ class DatabaseLoader:
                 'TYPE VARCHAR, '
                 'STATUS VARCHAR);')
             conn.commit()
-        elif self.cleartables == '1':
+        elif self.cleartables == 1:
             cur.execute('delete from images;')
             conn.commit()
 
@@ -60,7 +60,7 @@ class DatabaseLoader:
                 'FILENAME VARCHAR, '
                 'MODELNAME VARCHAR);')
             conn.commit()
-        elif self.cleartables == '1':
+        elif self.cleartables == 1:
             cur.execute('delete from models;')
             conn.commit()
         # copy csv
@@ -99,8 +99,8 @@ def main(args):
         for result in res:
             logging.info('JSON result: {}'.format(dumps(result)))
             producer.send(args.topic, value=result)
-            time.sleep(3.0)
-        time.sleep(130.0)
+            time.sleep(3.0) # Artifical delay for testing
+        time.sleep(130.0) # Artifical delay for testing
 
 def get_arg(env, default):
     return os.getenv(env) if os.getenv(env, '') is not '' else default
@@ -137,12 +137,10 @@ if __name__ == '__main__':
             '--dbname',
             help='database name to setup and watch, env variable DBNAME',
             default='adversarial')
-
     parser.add_argument(
             '--dbusername',
             help='username for the database, env variable DBUSERNAME',
             default='redhat')
-    
     parser.add_argument(
             '--dbpassword',
             help='password for the database, env variable DBPASSWORD',
@@ -150,7 +148,7 @@ if __name__ == '__main__':
     parser.add_argument(
             '--cleartables',
             help='clear out tables before starting, env variable CLEARTABLES',
-            default='0')
+            default=1)
     args = parse_args(parser)
     dbl = DatabaseLoader()
     dbl.setup_db()

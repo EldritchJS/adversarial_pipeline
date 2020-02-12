@@ -183,12 +183,10 @@ if __name__ == '__main__':
             '--dbname',
             help='database name to setup and watch, env variable DBNAME',
             default='adversarial')
-
     parser.add_argument(
             '--dbusername',
             help='username for the database, env variable DBUSERNAME',
             default='redhat')
-    
     parser.add_argument(
             '--dbpassword',
             help='password for the database, env variable DBPASSWORD',
