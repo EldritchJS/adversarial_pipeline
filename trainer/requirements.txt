@@ -1,0 +1,10 @@
+setuptools>=41.0.0
+kafka
+adversarial-robustness-toolbox
+numpy
+keras
+tensorflow
+pillow
+requests
+dropbox
+psycopg2
