@@ -93,7 +93,7 @@ def main(args):
                 logging.info('received label {}'.format(label))
                 logging.info('received filename {}'.format(infilename))
                 logging.info('downloading image')
-                image = np.array(img.getdata()).reshape(1,img.size[0], img.size[1], 3).astype('uint32')
+                image = np.array(img.getdata()).reshape(1,img.size[0], img.size[1], 3).astype('float32')
                 logging.info('downloaded image {} and {}'.format(image.shape,image.dtype))
                 images = np.ndarray(shape=(2,32,32,3))
                 logging.info('created images storage')
