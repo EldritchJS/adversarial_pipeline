@@ -32,7 +32,7 @@ def main(args):
         value_deserializer=lambda val: loads(val.decode('utf-8')))
     logging.info("finished creating kafka consumer")
 
-    if args.dbxtoken != None:
+    if args.dbxtoken != '':
         dbx = dropbox.Dropbox(args.dbxtoken)
     else:
         dbx = None
@@ -144,8 +144,7 @@ if __name__ == '__main__':
             default=255)        
     parser.add_argument(
             '--dbxtoken',
-            help='API token for Dropbox, env variable DROPBOX_TOKEN',
-            default='')
+            help='API token for Dropbox, env variable DROPBOX_TOKEN')
     parser.add_argument(
             '--dbhost',
             help='hostname for postgresql database, env variable DBHOST',
