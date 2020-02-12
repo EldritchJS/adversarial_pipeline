@@ -44,7 +44,7 @@ class DatabaseLoader:
                 'TYPE VARCHAR, '
                 'STATUS VARCHAR);')
             conn.commit()
-        elif self.cleartables == 1:
+        else: # ADDBACK check for cleartables
             cur.execute('delete from images;')
             conn.commit()
 
@@ -60,7 +60,7 @@ class DatabaseLoader:
                 'FILENAME VARCHAR, '
                 'MODELNAME VARCHAR);')
             conn.commit()
-        elif self.cleartables == 1:
+        else: # ADDBACK check for cleartables
             cur.execute('delete from models;')
             conn.commit()
         # copy csv
