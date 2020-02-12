@@ -3,6 +3,9 @@
 ### Overview
 This project contains a demo of conducting adversarial machine learning example generation and model retraining using microservices on OpenShift. 
 
+![alt text](https://github.com/eldritchjs/adversarial_pipeline/raw/master/images/services.png "Services")
+
+
 ### Prerequisites
 
 Persistent storage where adversarial images will be placed. For purposes of this demo a Dropbox API token associated to a single application folder is used. The `example_generator` and `trainer` services can be modified to handle the storage of your choosing. You'll also need access to a running OpenShift cluster. 
