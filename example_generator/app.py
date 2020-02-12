@@ -115,7 +115,7 @@ def main(args):
                     logging.info('Uploading file')
                     dbx.files_upload(f=fs.getvalue(), path=outfilename,mode=dropbox.files.WriteMode('overwrite', None))
                 if (batch_count == 5) and (dbx != None):
-                    logging.info('Sending message {} to topic {}'.format(batch_status_message,args.writetopic)
+                    logging.info('Sending message {} to topic {}'.format(batch_status_message,args.writetopic))
                     producer.send(args.writetopic,batch_status_message)
                     batch_count=0
 
