@@ -171,7 +171,7 @@ if __name__ == '__main__':
     parser.add_argument(
             '--attack',
             help='Attack for adversarial example generation [FGM | PGD], env variable ATTACK_TYPE',
-            default='PGD')
+            default='FGM')
     parser.add_argument(
             '--dbxtoken',
             help='API token for Dropbox, env variable DROPBOX_TOKEN',
