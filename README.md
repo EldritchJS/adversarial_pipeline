@@ -52,7 +52,7 @@ oc new-app eldritchjs/py36centostf:tf~https://github.com/eldritchjs/adversarial_
 --context-dir=trainer \
 -e KAFKA_BROKERS=kafka:9092 \
 -e KAFKA_READ_TOPIC=benign-batch-status \
--e BATCH_SIZE=6 \
+-e BATCH_SIZE=5 \
 -e MODEL_URL=https://www.dropbox.com/s/96yv0r2gqzockmw/cifar-10_ratio%3D0.5.h5?dl=1 \
 -e MODEL_MIN=0 \
 -e MODEL_MAX=255 \
