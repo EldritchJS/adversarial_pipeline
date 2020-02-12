@@ -75,7 +75,7 @@ def main(args):
     logging.info('brokers={}'.format(args.brokers))
     logging.info('topic={}'.format(args.topic))
     logging.info('creating kafka producer')    
-    producer = KafkaProducer(bootstrap_servers=['kafka:9092'],
+    producer = KafkaProducer(bootstrap_servers=args.brokers,
                              value_serializer=lambda x: 
                              dumps(x).encode('utf-8'))
     logging.info('finished creating kafka producer')
@@ -124,7 +124,7 @@ if __name__ == '__main__':
     parser.add_argument(
             '--brokers',
             help='The bootstrap servers, env variable KAFKA_BROKERS',
-            default='kafka:9092')
+            default='localhost:9092')
     parser.add_argument(
             '--topic',
             help='Topic to write to, env variable KAFKA_TOPIC',
@@ -132,7 +132,7 @@ if __name__ == '__main__':
     parser.add_argument(
             '--dbhost',
             help='hostname for postgresql database, env variable DBHOST',
-            default='postgresql')
+            default='localhost')
     parser.add_argument(
             '--dbname',
             help='database name to setup and watch, env variable DBNAME',

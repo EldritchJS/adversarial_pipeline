@@ -20,7 +20,7 @@ import dropbox
 import psycopg2
 
 def main(args):
-    batch_status_message = {'status':'Ready','model_url':args.model}
+    batch_status_message = {'status':'Ready','modelurl':args.model}
     batch_count = 0
     model_filename = 'base_model.h5'
 
@@ -58,7 +58,7 @@ def main(args):
     if args.dbxtoken != None:
         dbx = dropbox.Dropbox(args.dbxtoken)
         logging.info('creating kafka producer')    
-        producer = KafkaProducer(bootstrap_servers=['kafka:9092'],
+        producer = KafkaProducer(bootstrap_servers=args.brokers,
                                  value_serializer=lambda x: 
                                  dumps(x).encode('utf-8'))
         logging.info('finished creating kafka producer')    
@@ -75,12 +75,13 @@ def main(args):
                     user = args.dbusername,
                     password = args.dbpassword)
                 cur = conn.cursor()
+                image_url = message.value['url']
                 query = 'UPDATE images SET STATUS=%s where URL=%s'
                 cur.execute(query, ('Processed', image_url))
+                logging.info('updated database for {}'.format(image_url))
                 cur.close()
                 conn.close()
                 batch_count = batch_count+1
-                image_url = message.value['url']
                 response = requests.get(image_url)
                 img = Image.open(BytesIO(response.content))
                 label = message.value['label']
@@ -103,9 +104,9 @@ def main(args):
                 if (orig_inf != adv_inf) and (dbx != None):
                     fs=BytesIO()
                     imout=Image.fromarray(np.uint8(adversarial[0]))
-                    im.save(fs, format='jpeg')
+                    imout.save(fs, format='jpeg')
                     outfilename = '/images/{}_{}_adv.jpg'.format(infilename,adv_inf) 
-                    dbx.files_upload(fs.getvalue(), outfilename)
+                    dbx.files_upload(f=fs.getvalue(), path=outfilename,mode=dropbox.files.WriteMode('overwrite', None))
                 if (batch_count == args.batchsize) and (dbx != None):
                     producer.send(args.writetopic,batch_status_message)
                     batch_count=0
@@ -141,7 +142,7 @@ if __name__ == '__main__':
     parser.add_argument(
             '--brokers',
             help='The bootstrap servers, env variable KAFKA_BROKERS',
-            default='kafka:9092')
+            default='localhost:9092')
     parser.add_argument(
             '--readtopic',
             help='Topic to read from, env variable KAFKA_WRITE_TOPIC',
@@ -169,15 +170,15 @@ if __name__ == '__main__':
     parser.add_argument(
             '--dbxtoken',
             help='API token for Dropbox, env variable DROPBOX_TOKEN',
-            default=None)
+            default='')
     parser.add_argument(
             '--batchsize',
             help='Adversarial batch size, env variable BATCH_SIZE',
-            default=3)
+            default=6)
     parser.add_argument(
             '--dbhost',
             help='hostname for postgresql database, env variable DBHOST',
-            default='postgresql')
+            default='localhost')
     parser.add_argument(
             '--dbname',
             help='database name to setup and watch, env variable DBNAME',
