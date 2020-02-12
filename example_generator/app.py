@@ -93,10 +93,13 @@ def main(args):
                 image = np.array(img.getdata()).reshape(1,img.size[0], img.size[1], 3).astype('float32')
                 logging.info('downloaded image')
                 images = np.ndarray(shape=(2,32,32,3)).astype('float32')
+                logging.info('created images storage')
                 images[0] = image
+                logging.info('assigned image to images')
                 adversarial = attack.generate(image)
-                images[1] = adversarial
                 logging.info('adversarial image generated')
+                images[1] = adversarial
+                logging.info('adversarial image assigned')
                 preds = model.predict(images)
                 orig_inf = np.argmax(preds[0])
                 adv_inf = np.argmax(preds[1])
