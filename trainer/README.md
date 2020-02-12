@@ -7,7 +7,7 @@ The trainer expects messages on the topic to provide a JSON object with keys `St
 The trainer service is created as follows:
 
 ```
-oc new-app eldritchjs/centospy36tf:tf~https://github.com/eldritchjs/adversarial_pipeline \
+oc new-app eldritchjs/py36centostf:tf~https://github.com/eldritchjs/adversarial_pipeline \
 --context-dir=trainer \
 -e KAFKA_BROKERS=kafka:9092 \
 -e KAFKA_READ_TOPIC=benign-batch-status \

@@ -75,7 +75,7 @@ def main(args):
                             adversaries = True
                         else:
                             X_adv = np.append(X_adv, image, axis=0)
-                            y_adv = np.append(y_adv, [label], axis=0))
+                            y_adv = np.append(y_adv, [label], axis=0)
                     y_adv = to_categorical(y_adv, 10)
                     X_train = np.append(X_train, X_adv, axis=0)
                     y_train = np.append(y_train, [y_adv], axis=0) 
