@@ -57,7 +57,7 @@ def main(args):
                     pass
                 path = get_file(model_filename, extract=False, path=ART_DATA_PATH, url=modelurl)
                 kmodel = load_model(path) 
-                model = KerasClassifier(kmodel, use_logits=False, clip_values=[args.min,args.max]) 
+                model = KerasClassifier(kmodel, use_logits=False, clip_values=[float(args.min),float(args.max)]) 
                 logging.info('finished acquiring model')            
                 imagefiles=dbx.files_list_folder('/images')
                 adversaries=False 

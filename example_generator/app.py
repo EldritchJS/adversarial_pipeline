@@ -33,7 +33,7 @@ def main(args):
         pass
     path = get_file(model_filename, extract=False, path=ART_DATA_PATH, url=args.model)
     kmodel = load_model(path) 
-    model = KerasClassifier(kmodel, use_logits=False, clip_values=[args.min,args.max]) 
+    model = KerasClassifier(kmodel, use_logits=False, clip_values=[float(args.min),float(args.max)]) 
     logging.info('finished acquiring model')
     logging.info('creating attack {}'.format(args.attack))
 
@@ -114,7 +114,7 @@ def main(args):
                     outfilename = '/images/{}_{}_adv.jpg'.format(infilename,adv_inf) 
                     logging.info('Uploading file')
                     dbx.files_upload(f=fs.getvalue(), path=outfilename,mode=dropbox.files.WriteMode('overwrite', None))
-                if (batch_count == args.batchsize) and (dbx != None):
+                if (batch_count == int(args.batchsize)) and (dbx != None):
                     logging.info('Sending message {} to topic {}'.format(batch_status_message,args.writetopic))
                     producer.send(args.writetopic,batch_status_message)
                     batch_count=0
