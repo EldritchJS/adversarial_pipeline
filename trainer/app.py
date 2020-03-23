@@ -86,9 +86,12 @@ def main(args):
                 model.basename=model_filename.split('.')[0]
                 adv_model_name = model_basename + '_adv'
                 adv_model_filename = adv_model_name + '.h5'
-                model.save(model_basename + '_adv.h5')
-                # TODO Copy to model store
+                model.save(adv_model_filename)
+                outfilename = '/models/{}'.format(adv_model_filename)
 
+                with(open(adv_model_filename, 'rb') as mfile:
+                    dbx.files_upload(f=mfile.read(), path=outfilename,mode=dropbox.files.WriteMode('overwrite', None))
+                
                 conn = psycopg2.connect(
                     host = args.dbhost,
                     port = 5432,
