@@ -10,66 +10,60 @@ from json import dumps
 
 
 
-class DatabaseLoader:
-    # main function
-    def __init__(self):
-        self.server = environ.get("DBHOST")
-        self.user = environ.get("DBUSERNAME")
-        self.password = environ.get("DBPASSWORD")
-        self.dbname = environ.get("DBNAME")
-        self.cleartables = environ.get("CLEARTABLES")
+# takes the csvs and inserts them into the db, creating tables as needed
+def setup_db(args):
+    conn = psycopg2.connect(host=args.dbhost,
+                            port=5432,
+                            dbname=args.dbname,
+                            user=args.dbusername,
+                            password=args.dbpassword)
 
-    # takes the csv and inserts it into the db
-    def setup_db(self):
-        conn = psycopg2.connect(host=self.server,
-                                port=5432,
-                                dbname=self.dbname,
-                                user=self.user,
-                                password=self.password)
+    cur = conn.cursor()
 
-        cur = conn.cursor()
-
-        # does table exist
-        tb_exists = "select exists(" \
-                    "select relname from pg_class where relname='"\
-                    + "images" + "')"
-        cur.execute(tb_exists)
-        if cur.fetchone()[0] is False:
-            # make table
-            cur.execute(
-                'create table images('
-                'URL VARCHAR, '
-		'FILENAME VARCHAR, '
-                'LABEL VARCHAR, '
-                'TYPE VARCHAR, '
-                'STATUS VARCHAR);')
-            conn.commit()
-        else: # ADDBACK check for cleartables
-            cur.execute('delete from images;')
-            conn.commit()
-
-        tb_exists = "select exists(" \
-                    "select relname from pg_class where relname='"\
-                    + "models" + "')"
-        cur.execute(tb_exists)
-        if cur.fetchone()[0] is False:
-            cur.execute(
-                'create table models('
-                'ID SERIAL PRIMARY KEY, '
-                'URL VARCHAR, '
-                'FILENAME VARCHAR, '
-                'MODELNAME VARCHAR);')
-            conn.commit()
-        else: # ADDBACK check for cleartables
-            cur.execute('delete from models;')
-            conn.commit()
-        # copy csv
-        f = open(r'benign_images.csv', 'r')
-        cur.copy_from(f, "images", sep=',')
-        g = open(r'models.csv', 'r')
-        cur.copy_from(g, "models", sep=',')
+    # does images table exist
+    tb_exists = "select exists(" \
+                "select relname from pg_class where relname='"\
+                + "images" + "')"
+    cur.execute(tb_exists)
+    if cur.fetchone()[0] is False:
+        # make table
+        cur.execute(
+            'create table images('
+            'URL VARCHAR, '
+	    'FILENAME VARCHAR, '
+            'LABEL VARCHAR, '
+            'TYPE VARCHAR, '
+            'STATUS VARCHAR);')
         conn.commit()
-        f.close()
+    elif args.cleartables == 1: 
+        cur.execute('delete from images;')
+        conn.commit()
+
+    # does models table exist
+    tb_exists = "select exists(" \
+                "select relname from pg_class where relname='"\
+                + "models" + "')"
+    cur.execute(tb_exists)
+    if cur.fetchone()[0] is False:
+        cur.execute(
+            'create table models('
+            'ID SERIAL PRIMARY KEY, '
+            'URL VARCHAR, '
+            'FILENAME VARCHAR, '
+            'MODELNAME VARCHAR);')
+        conn.commit()
+    elif args.cleartables == 1:
+        cur.execute('delete from models;')
+        conn.commit()
+ 
+    # copy image csv to db
+    f = open(r'benign_images.csv', 'r')
+    cur.copy_from(f, "images", sep=',')
+    # copy model csv to db
+    g = open(r'models.csv', 'r')
+    cur.copy_from(g, "models", sep=',')
+    conn.commit()
+    f.close()
 
 def main(args):
     logging.info('brokers={}'.format(args.brokers))
@@ -103,7 +97,7 @@ def main(args):
         time.sleep(130.0) # Artifical delay for testing
 
 def get_arg(env, default):
-    return os.getenv(env) if os.getenv(env, '') is not '' else default
+    return os.getenv(env) if os.getenv(env, "") != "" else default
 
 def parse_args(parser):
     args = parser.parse_args()
@@ -149,10 +143,9 @@ if __name__ == '__main__':
             '--cleartables',
             help='clear out tables before starting, env variable CLEARTABLES',
             default=1)
-    args = parse_args(parser)
-    dbl = DatabaseLoader()
-    dbl.setup_db()
-    main(args)
+    cmdline_args = parse_args(parser)
+    setup_db(cmdline_args)
+    main(cmdline_args)
     logging.info('exiting')
 
 

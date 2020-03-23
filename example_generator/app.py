@@ -33,7 +33,7 @@ def main(args):
         pass
     path = get_file(model_filename, extract=False, path=ART_DATA_PATH, url=args.model)
     kmodel = load_model(path) 
-    model = KerasClassifier(kmodel, use_logits=False, clip_values=[0.0,255.0]) 
+    model = KerasClassifier(kmodel, use_logits=False, clip_values=[args.min,args.max]) 
     logging.info('finished acquiring model')
     logging.info('creating attack {}'.format(args.attack))
 
@@ -114,7 +114,7 @@ def main(args):
                     outfilename = '/images/{}_{}_adv.jpg'.format(infilename,adv_inf) 
                     logging.info('Uploading file')
                     dbx.files_upload(f=fs.getvalue(), path=outfilename,mode=dropbox.files.WriteMode('overwrite', None))
-                if (batch_count == 5) and (dbx != None):
+                if (batch_count == args.batchsize) and (dbx != None):
                     logging.info('Sending message {} to topic {}'.format(batch_status_message,args.writetopic))
                     producer.send(args.writetopic,batch_status_message)
                     batch_count=0
@@ -122,7 +122,7 @@ def main(args):
 
 
 def get_arg(env, default):
-    return os.getenv(env) if os.getenv(env, '') is not '' else default
+    return os.getenv(env) if os.getenv(env, "") != "" else default
 
 
 def parse_args(parser):
@@ -165,11 +165,11 @@ if __name__ == '__main__':
     parser.add_argument(
             '--min',
             help='Normalization range min, env variable MODEL_MIN',
-            default=0)   
+            default=0.0)   
     parser.add_argument(
             '--max',
             help='Normalization range min, env variable MODEL_MAX',
-            default=255)        
+            default=255.0)        
     parser.add_argument(
             '--attack',
             help='Attack for adversarial example generation [FGM | PGD], env variable ATTACK_TYPE',
@@ -198,7 +198,7 @@ if __name__ == '__main__':
             '--dbpassword',
             help='password for the database, env variable DBPASSWORD',
             default='redhat')
-    args = parse_args(parser)
-    main(args)
+    cmdline_args = parse_args(parser)
+    main(cmdline_args)
     logging.info('exiting')
 

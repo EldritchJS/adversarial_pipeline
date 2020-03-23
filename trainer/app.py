@@ -79,7 +79,10 @@ def main(args):
                 y_adv = to_categorical(y_adv, 10)
                 X_train = np.append(X_train, X_adv, axis=0)
                 y_train = np.append(y_train, y_adv, axis=0) 
-                model.fit(X_train, y_train, nb_epochs=83, batch_size=50) # Per ART 360 example
+                if args.testmode==0:
+                    model.fit(X_train, y_train, nb_epochs=83, batch_size=50) # Per ART 360 example
+                else:
+                    model.fit(X_train, y_train, nb_epochs=1, batch_size=50) # Testing only
                 model.basename=model_filename.split('.')[0]
                 adv_model_name = model_basename + '_adv'
                 adv_model_filename = adv_model_name + '.h5'
@@ -115,7 +118,8 @@ def parse_args(parser):
     args.dbhost = get_arg('DBHOST', args.dbhost)
     args.dbname = get_arg('DBNAME', args.dbname)
     args.dbusername = get_arg('DBUSERNAME', args.dbusername)
-    args.dbtopic = get_arg('DBPASSWORD', args.dbpassword)    
+    args.dbtopic = get_arg('DBPASSWORD', args.dbpassword)   
+    args.testmode = get_arg('TESTMODE', args.testmode)
     return args
 
 
@@ -163,6 +167,12 @@ if __name__ == '__main__':
             '--dbpassword',
             help='password for the database, env variable DBPASSWORD',
             default='redhat')
+
+    parser.add_argument(
+            '--testmode',
+            help='reduced training time for faster testing purposes',
+            default=0)
+
     args = parse_args(parser)
     main(args)
     logging.info('exiting')
