@@ -35,7 +35,7 @@ def setup_db(args):
             'TYPE VARCHAR, '
             'STATUS VARCHAR);')
         conn.commit()
-    elif args.cleartables == 1:
+    elif args.cleartables == '1':
         logging.info('Clearing images table')
         cur.execute('delete from images;')
         conn.commit()
@@ -53,7 +53,7 @@ def setup_db(args):
             'FILENAME VARCHAR, '
             'MODELNAME VARCHAR);')
         conn.commit()
-    elif args.cleartables == 1:
+    elif args.cleartables == '1':
         logging.info('Clearing models table')
         cur.execute('delete from models;')
         conn.commit()
