@@ -89,7 +89,7 @@ def main(args):
                 model.save(adv_model_filename)
                 outfilename = '/models/{}'.format(adv_model_filename)
 
-                with(open(adv_model_filename, 'rb') as mfile:
+                with open(adv_model_filename, 'rb') as mfile:
                     dbx.files_upload(f=mfile.read(), path=outfilename,mode=dropbox.files.WriteMode('overwrite', None))
                 
                 conn = psycopg2.connect(
