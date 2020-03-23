@@ -79,7 +79,7 @@ def main(args):
                 y_adv = to_categorical(y_adv, 10)
                 X_train = np.append(X_train, X_adv, axis=0)
                 y_train = np.append(y_train, y_adv, axis=0) 
-                if args.testmode==0:
+                if args.testmode=='0':
                     model.fit(X_train, y_train, nb_epochs=83, batch_size=50) # Per ART 360 example
                 else:
                     model.fit(X_train, y_train, nb_epochs=1, batch_size=50) # Testing only
