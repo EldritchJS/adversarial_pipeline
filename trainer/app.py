@@ -83,7 +83,7 @@ def main(args):
                     model.fit(X_train, y_train, nb_epochs=83, batch_size=50) # Per ART 360 example
                 else:
                     model.fit(X_train, y_train, nb_epochs=1, batch_size=50) # Testing only
-                model.basename=model_filename.split('.')[0]
+                model_basename=model_filename.split('.')[0]
                 adv_model_name = model_basename + '_adv'
                 adv_model_filename = adv_model_name + '.h5'
                 model.save(adv_model_filename)
@@ -91,7 +91,8 @@ def main(args):
 
                 with open(adv_model_filename, 'rb') as mfile:
                     dbx.files_upload(f=mfile.read(), path=outfilename,mode=dropbox.files.WriteMode('overwrite', None))
-                
+                share_link = dbx.sharing_create_shared_link_with_settings(outfilename)
+                 
                 conn = psycopg2.connect(
                     host = args.dbhost,
                     port = 5432,
@@ -100,7 +101,7 @@ def main(args):
                     password = args.dbpassword)
                 cur = conn.cursor()
                 query = 'INSERT into models(URL, FILENAME, MODELNAME) VALUES(%s, %s, %s)'
-                cur.execute(query, ('', adv_model_filename, adv_model_name)) 
+                cur.execute(query, (share_link, adv_model_filename, adv_model_name)) 
                 conn.commit()
                 logging.info('updated database with new model')
                 cur.close()
