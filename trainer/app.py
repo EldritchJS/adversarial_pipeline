@@ -101,7 +101,7 @@ def main(args):
                 conn.close()
 
 def get_arg(env, default):
-    return os.getenv(env) if os.getenv(env, '') is not '' else default
+    return os.getenv(env) if os.getenv(env, "") != "" else default
 
 
 def parse_args(parser):
@@ -137,11 +137,11 @@ if __name__ == '__main__':
     parser.add_argument(
             '--min',
             help='Normalization range min, env variable MODEL_MIN',
-            default=0)   
+            default=0.0)   
     parser.add_argument(
             '--max',
             help='Normalization range min, env variable MODEL_MAX',
-            default=255)        
+            default=255.0)        
     parser.add_argument(
             '--dbxtoken',
             help='API token for Dropbox, env variable DROPBOX_TOKEN')
