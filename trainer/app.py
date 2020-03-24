@@ -88,8 +88,8 @@ def main(args):
                 adv_model_filename = adv_model_name + '.h5'
                 model.save(adv_model_filename)
                 outfilename = '/models/{}'.format(adv_model_filename)
-
-                with open(adv_model_filename, 'rb') as mfile:
+                adv_model_fullpath = '/opt/app-root/src/.art/data/'+adv_model_filename
+                with open(adv_model_fullpath, 'rb') as mfile:
                     dbx.files_upload(f=mfile.read(), path=outfilename,mode=dropbox.files.WriteMode('overwrite', None))
                 share_link = dbx.sharing_create_shared_link_with_settings(outfilename)
                  
